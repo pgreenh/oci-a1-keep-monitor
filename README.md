@@ -31,6 +31,7 @@ You will get a phone push notification via ntfy. The new instance OCID is
 in the alert message. **Disable the workflow immediately** to stop further
 attempts:
 
+
 - Actions tab -> A1 Capacity Hunt -> ... menu -> Disable workflow
 
 If you don't disable, the next scheduled run will try to launch another
