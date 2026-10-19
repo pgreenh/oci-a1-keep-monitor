@@ -8,8 +8,10 @@ name: OCI Instance Monitor
 # Unlike the hunter workflows we just disabled, this workflow does NOT
 # launch anything. Read-only safety net.
 on:
+  repository_dispatch:
+    types: [monitor]   # fired by the Cloudflare Worker for reliable cadence
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/15 * * * *'   # fallback - GitHub throttles this heavily
   workflow_dispatch:
 
 permissions:
