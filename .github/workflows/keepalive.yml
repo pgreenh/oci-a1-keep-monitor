@@ -1,0 +1,33 @@
+name: Keepalive
+
+# Prevents GitHub from auto-disabling the scheduled workflows in this repo.
+# Scheduled workflows are disabled after 60 days of no repository activity,
+# and commits made by the built-in GITHUB_TOKEN do NOT reset that timer -
+# so this makes a real commit using a Personal Access Token (repo secret
+# KEEPALIVE_PAT) on the 1st and 15th of each month, well inside the window.
+# This is what keeps "OCI Instance Monitor" alive hands-free.
+on:
+  schedule:
+    - cron: '0 3 1,15 * *'   # 03:00 UTC on the 1st and 15th (~every 2 weeks)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with PAT so the push counts as user activity)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.KEEPALIVE_PAT }}
+
+      - name: Commit a timestamp to reset the 60-day inactivity timer
+        run: |
+          git config user.name  "keepalive-bot"
+          git config user.email "keepalive@users.noreply.github.com"
+          date -u +"last-keepalive: %Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git add .keepalive
+          git commit -m "chore: keepalive nudge [skip ci]" || { echo "nothing to commit"; exit 0; }
+          git push
